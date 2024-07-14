@@ -9,6 +9,9 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(bodyParser.json());
 
+// Initialize database
+// initializeDatabase();
+
 // Swagger configuration
 const swaggerOptions = {
   swaggerDefinition: {
@@ -35,11 +38,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 const apiRouter = express.Router();
 app.use('/api', apiRouter);
 
-// In-memory database (replace with a real database later)
-let plants = [
-  { id: 1, name: 'Pothos', scientificName: 'Epipremnum aureum', careLevel: 'EASY', waterFrequency: 7 },
-  { id: 2, name: 'Snake Plant', scientificName: 'Sansevieria trifasciata', careLevel: 'EASY', waterFrequency: 14 },
-];
 
 /**
  * @swagger
@@ -86,7 +84,10 @@ let plants = [
  *               items:
  *                 $ref: '#/components/schemas/Plant'
  */
-apiRouter.get('/plants', (req, res) => {
+// Routes
+apiRouter.get('/plants', async (req, res) => {
+  const db = await getDb();
+  const plants = await db.all('SELECT * FROM plants');
   res.json(plants);
 });
 
@@ -112,8 +113,9 @@ apiRouter.get('/plants', (req, res) => {
  *       404:
  *         description: Plant not found
  */
-apiRouter.get('/plants/:id', (req, res) => {
-  const plant = plants.find(p => p.id === parseInt(req.params.id));
+apiRouter.get('/plants/:id', async (req, res) => {
+  const db = await getDb();
+  const plant = await db.get('SELECT * FROM plants WHERE id = ?', req.params.id);
   if (!plant) return res.status(404).send('Plant not found');
   res.json(plant);
 });
@@ -137,15 +139,14 @@ apiRouter.get('/plants/:id', (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Plant'
  */
-apiRouter.post('/plants', (req, res) => {
-  const plant = {
-    id: plants.length + 1,
-    name: req.body.name,
-    scientificName: req.body.scientificName,
-    careLevel: req.body.careLevel,
-    waterFrequency: req.body.waterFrequency
-  };
-  plants.push(plant);
+apiRouter.post('/plants', async (req, res) => {
+  const db = await getDb();
+  const { name, scientificName, careLevel, waterFrequency } = req.body;
+  const result = await db.run(
+    'INSERT INTO plants (name, scientificName, careLevel, waterFrequency) VALUES (?, ?, ?, ?)',
+    [name, scientificName, careLevel, waterFrequency]
+  );
+  const plant = { id: result.lastID, ...req.body };
   res.status(201).json(plant);
 });
 
@@ -177,16 +178,16 @@ apiRouter.post('/plants', (req, res) => {
  *       404:
  *         description: Plant not found
  */
-apiRouter.put('/plants/:id', (req, res) => {
-  const plant = plants.find(p => p.id === parseInt(req.params.id));
-  if (!plant) return res.status(404).send('Plant not found');
-
-  plant.name = req.body.name;
-  plant.scientificName = req.body.scientificName;
-  plant.careLevel = req.body.careLevel;
-  plant.waterFrequency = req.body.waterFrequency;
-
-  res.json(plant);
+apiRouter.put('/plants/:id', async (req, res) => {
+  const db = await getDb();
+  const { name, scientificName, careLevel, waterFrequency } = req.body;
+  await db.run(
+    'UPDATE plants SET name = ?, scientificName = ?, careLevel = ?, waterFrequency = ? WHERE id = ?',
+    [name, scientificName, careLevel, waterFrequency, req.params.id]
+  );
+  const updatedPlant = await db.get('SELECT * FROM plants WHERE id = ?', req.params.id);
+  if (!updatedPlant) return res.status(404).send('Plant not found');
+  res.json(updatedPlant);
 });
 
 /**
@@ -211,13 +212,11 @@ apiRouter.put('/plants/:id', (req, res) => {
  *       404:
  *         description: Plant not found
  */
-apiRouter.delete('/plants/:id', (req, res) => {
-  const plant = plants.find(p => p.id === parseInt(req.params.id));
+apiRouter.delete('/plants/:id', async (req, res) => {
+  const db = await getDb();
+  const plant = await db.get('SELECT * FROM plants WHERE id = ?', req.params.id);
   if (!plant) return res.status(404).send('Plant not found');
-
-  const index = plants.indexOf(plant);
-  plants.splice(index, 1);
-
+  await db.run('DELETE FROM plants WHERE id = ?', req.params.id);
   res.json(plant);
 });
 
