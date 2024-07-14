@@ -20,16 +20,20 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: '137.184.176.143',
+        url: 'http://137.184.176.143/api',
         description: 'Development server',
       },
     ],
   },
-  apis: ['./app.js'], // files containing annotations as above
+  apis: ['./app.js'],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+// API Router
+const apiRouter = express.Router();
+app.use('/api', apiRouter);
 
 // In-memory database (replace with a real database later)
 let plants = [
@@ -68,7 +72,7 @@ let plants = [
 
 /**
  * @swagger
- * /api/plants:
+ * /plants:
  *   get:
  *     summary: Retrieve a list of plants
  *     description: Retrieve a list of plants from the Garden Book database
@@ -82,13 +86,13 @@ let plants = [
  *               items:
  *                 $ref: '#/components/schemas/Plant'
  */
-app.get('/api/plants', (req, res) => {
+apiRouter.get('/plants', (req, res) => {
   res.json(plants);
 });
 
 /**
  * @swagger
- * /api/plants/{id}:
+ * /plants/{id}:
  *   get:
  *     summary: Get a plant by id
  *     parameters:
@@ -108,7 +112,7 @@ app.get('/api/plants', (req, res) => {
  *       404:
  *         description: Plant not found
  */
-app.get('/api/plants/:id', (req, res) => {
+apiRouter.get('/plants/:id', (req, res) => {
   const plant = plants.find(p => p.id === parseInt(req.params.id));
   if (!plant) return res.status(404).send('Plant not found');
   res.json(plant);
@@ -116,7 +120,7 @@ app.get('/api/plants/:id', (req, res) => {
 
 /**
  * @swagger
- * /api/plants:
+ * /plants:
  *   post:
  *     summary: Create a new plant
  *     requestBody:
@@ -133,7 +137,7 @@ app.get('/api/plants/:id', (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Plant'
  */
-app.post('/api/plants', (req, res) => {
+apiRouter.post('/plants', (req, res) => {
   const plant = {
     id: plants.length + 1,
     name: req.body.name,
@@ -147,7 +151,7 @@ app.post('/api/plants', (req, res) => {
 
 /**
  * @swagger
- * /api/plants/{id}:
+ * /plants/{id}:
  *   put:
  *     summary: Update a plant
  *     parameters:
@@ -173,7 +177,7 @@ app.post('/api/plants', (req, res) => {
  *       404:
  *         description: Plant not found
  */
-app.put('/api/plants/:id', (req, res) => {
+apiRouter.put('/plants/:id', (req, res) => {
   const plant = plants.find(p => p.id === parseInt(req.params.id));
   if (!plant) return res.status(404).send('Plant not found');
 
@@ -187,7 +191,7 @@ app.put('/api/plants/:id', (req, res) => {
 
 /**
  * @swagger
- * /api/plants/{id}:
+ * /plants/{id}:
  *   delete:
  *     summary: Delete a plant
  *     parameters:
@@ -207,7 +211,7 @@ app.put('/api/plants/:id', (req, res) => {
  *       404:
  *         description: Plant not found
  */
-app.delete('/api/plants/:id', (req, res) => {
+apiRouter.delete('/plants/:id', (req, res) => {
   const plant = plants.find(p => p.id === parseInt(req.params.id));
   if (!plant) return res.status(404).send('Plant not found');
 
