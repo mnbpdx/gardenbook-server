@@ -1,0 +1,102 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# tests
+
+## gardenbook_chat
+- To run tests for gardenbook_chat:
+  1. Activate venv: `source gardenbook_chat/.venv/bin/activate`
+  2. Run tests using script: `cd gardenbook_chat && ./run_tests.sh`
+  3. Or run tests directly: `cd gardenbook_chat && python -m pytest tests -v`
+- Test suite structure:
+  - test_gardenbook_chat.py: Tests the make_graph function and error handling
+  - test_agent_behavior.py: Tests the agent's tool usage and conversation flow
+- All tests use mocks for external dependencies (MultiServerMCPClient, ChatAnthropic, etc.)
+
+## gardenbook_chat_api
+- To run tests for gardenbook_chat_api:
+  1. Activate venv: `source gardenbook_chat_api/.venv/bin/activate`
+  2. Run tests: `cd gardenbook_chat_api && python -m pytest`
+  3. For coverage: `python -m pytest --cov=gardenbook_chat_api --cov-report=html`
+- Test suite structure:
+  - test_api.py: FastAPI endpoints
+  - test_models.py: Pydantic models
+  - test_run.py: Configuration
+
+## gardenbook-api
+- To run tests for gardenbook-api:
+  1. Navigate to the directory: `cd gardenbook-api`
+  2. Run all tests: `npm test`
+  3. Run tests in watch mode (for development): `npm run test:watch`
+  4. Generate test coverage report: `npm run test:coverage`
+  5. Run tests in CI environment: `npm run test:ci`
+- Test suite structure:
+  - app.test.js: Tests for Express application setup and middleware
+  - plant.model.test.js: Unit tests for the MongoDB data models
+  - plants.test.js: Integration tests for the API endpoints
+  - db.test.js: Tests for database connection management
+- All tests use mocks for external dependencies (MongoDB, Express, Swagger)
+
+## plants-mcp
+- To run tests for plants-mcp:
+  1. Activate venv: `source plants-mcp/.venv/bin/activate`
+  2. Run tests using script: `cd plants-mcp && ./run_tests.sh`
+  3. Run tests with coverage: `cd plants-mcp && ./run_tests.sh --coverage`
+- Test suite structure:
+  - test_garden_mcp.py: Tests all MCP tool functions for plant operations
+    - Tests success cases for all CRUD operations
+    - Tests error handling and edge cases
+    - Tests MongoDB interactions with mocks
+- All tests use mocks for MongoDB and achieve 94% code coverage 
+
+# run
+
+## gardenbook_chat_api
+
+- To run gardenbook_chat_api:
+  1. Navigate to the directory: `cd gardenbook_chat_api`
+  2. Create and activate a virtual environment:
+     ```bash
+     uv venv
+     source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+     ```
+  3. Install dependencies:
+     ```bash
+     uv pip install -r requirements.txt
+     ```
+  4. Start the server (Option 1 - using run.py):
+     ```bash
+     python run.py
+     ```
+     Or start the server (Option 2 - using uvicorn directly):
+     ```bash
+     uvicorn main:app --reload
+     ```
+  5. The API will be available at: http://localhost:8000
+     - API documentation: http://localhost:8000/docs
+
+## gardenbook-api
+
+- To run gardenbook-api:
+  1. Navigate to the directory: `cd gardenbook-api`
+  2. Install dependencies:
+     ```bash
+     npm install
+     ```
+  3. Set up environment variables:
+     - Create a `.env` file in the root directory with:
+     ```
+     MONGO_URI=mongodb://localhost:27017
+     ```
+  4. Start the server in development mode:
+     ```bash
+     npm run dev
+     ```
+     Or start the server in production mode:
+     ```bash
+     npm start
+     ```
+  5. The API will be available at: http://localhost:3000 (default port)
+     - API documentation: http://localhost:3000/api-docs 

@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## python
+- always use `uv` istead of `pip`
+- always make sure you're in a venv virtual environment before installing dependencies or running any scripts or tests

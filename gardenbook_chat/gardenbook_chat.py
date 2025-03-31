@@ -2,20 +2,14 @@ import asyncio
 import os
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_anthropic import ChatAnthropic
+from langgraph.prebuilt import create_react_agent
+from langgraph.graph import END
+from langchain_mcp_adapters.client import MultiServerMCPClient
 
 # Load environment variables from .env file
 load_dotenv()
-
-# LangChain imports
-from langchain_core.messages import HumanMessage, AIMessage
-from langchain_anthropic import ChatAnthropic
-
-# LangGraph imports
-from langgraph.prebuilt import create_react_agent
-from langgraph.graph import END
-
-# MCP Adapter imports
-from langchain_mcp_adapters.client import MultiServerMCPClient
 
 # Default MCP server path
 DEFAULT_MCP_SERVER_PATH = "../plants-mcp/garden_mcp.py"
